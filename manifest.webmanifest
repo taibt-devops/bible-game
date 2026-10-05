@@ -1,0 +1,16 @@
+{
+  "name": "Manna — Học thuộc câu gốc",
+  "short_name": "Manna",
+  "description": "Trò chơi giúp giới trẻ học thuộc câu gốc Kinh Thánh.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7e6c2",
+  "theme_color": "#f7e6c2",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

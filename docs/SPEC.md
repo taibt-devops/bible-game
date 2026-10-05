@@ -50,7 +50,7 @@ Phiên bản tài liệu: 1.0 · Cập nhật: 10/2026
 - Các bản dịch có bản quyền (Truyền Thống Hiệu Đính 2010, Bản Dịch Mới…) chỉ thêm khi có giấy phép.
 
 ### 3.2 Bộ câu khởi đầu
-53 câu, 9 chủ đề:
+54 câu, 9 chủ đề:
 
 | Mã | Chủ đề | Ví dụ |
 |---|---|---|
@@ -114,7 +114,7 @@ Mỗi lượt lấy câu trong chủ đề đã chọn theo thứ tự ưu tiên
 - **Chọn từ gây nhiễu:**
   - Lấy từ các câu gốc khác, độ dài gần bằng đáp án, không trùng đáp án và không trùng từ đang có trong câu.
   - Nếu đáp án viết hoa thì viết hoa cả từ nhiễu, để không lộ đáp án.
-- **Đúng:** ô chuyển xanh, có âm thanh, **+10 XP**. Đúng liên tiếp từ lần thứ 3 trở đi (combo) được **+5 XP** thưởng thêm mỗi lần.
+- **Đúng:** ô chuyển xanh, có âm thanh, **+5 XP**. Đúng liên tiếp từ lần thứ 3 trở đi (combo) được **+2 XP** thưởng thêm mỗi lần.
 - **Sai:** ô chuyển đỏ và rung, hiện đáp án đúng, combo về 0.
 - Trả lời hết ô trống của một câu thì hiện thanh phản hồi ở đáy màn hình ("Chính xác!" hoặc "Cố lên!"), kèm nút **Tiếp tục**.
 - Câu được tính **thành công** khi đúng tất cả ô trống.
@@ -124,7 +124,7 @@ Mỗi lượt lấy câu trong chủ đề đã chọn theo thứ tự ưu tiên
 - Câu gốc được cắt thành các mảnh rồi xáo trộn. Không bao giờ giữ nguyên thứ tự đúng ban đầu.
 - Chạm mảnh ở "kho" để đưa lên khung trả lời; chạm mảnh trong khung để trả về kho.
 - Khi đặt hết các mảnh, game tự kiểm tra:
-  - **Đúng:** **+15 XP** nếu không sai và không dùng gợi ý; ngược lại **+5 XP**.
+  - **Đúng:** **+20 XP** nếu không sai và không dùng gợi ý; ngược lại **+8 XP**.
   - **Sai:** các mảnh sai vị trí chuyển đỏ. Sau 0,8 giây, phần đúng từ đầu được giữ lại, các mảnh còn lại quay về kho.
 - Nút **Gợi ý**: đặt mảnh đúng tiếp theo vào khung.
 - Câu được tính **thành công** khi đúng ngay lần đầu và không dùng gợi ý.
@@ -136,7 +136,7 @@ Mỗi lượt lấy câu trong chủ đề đã chọn theo thứ tự ưu tiên
   - Tách từ, bỏ dấu câu, không phân biệt hoa thường.
   - Điểm giống nhau = `2 × số từ khớp theo thứ tự (LCS) / (số từ đúng + số từ đã gõ)`.
   - Gõ thừa từ cũng bị trừ điểm.
-- **Đạt** khi điểm ≥ 90%. XP = `làm tròn(điểm × 20)`.
+- **Đạt** khi điểm ≥ 90%. XP = `làm tròn(điểm × 25)`.
 - Nút **Xem câu** hiện toàn bộ câu trong 5 giây. Dùng nút này thì **−5 XP** và câu không được tính thành công.
 - Cài đặt **"Không bắt buộc gõ dấu"**: khi so sánh, bỏ dấu thanh và đổi *đ* thành *d*.
 - Sau khi chấm, hiện lại câu gốc: từ đúng màu xanh, từ thiếu gạch chân đỏ.
@@ -170,6 +170,7 @@ Mỗi câu có trạng thái `{ box, due, seen, correct, lastUp }`.
 - Số sao của câu = số hộp. "Đã thuộc" = hộp ≥ 4.
 
 ### 6.2 XP, cấp độ, chuỗi ngày
+- **Cân bằng XP:** mỗi lượt của Điền Từ, Xếp Câu, Thuộc Lòng cho khoảng 60–90 XP, nên một lượt ≈ mục tiêu ngày mặc định. Các con số nằm trong `src/config.js`.
 - **Cấp độ:** lên cấp tiếp theo cần `100 + 50 × (cấp − 1)` XP (cấp 1→2 cần 100, cấp 2→3 cần 150…).
 - **Mục tiêu ngày** chọn trong cài đặt: 30 / 50 / 100 XP (mặc định 50). Đạt mục tiêu thì có thông báo.
 - **Chuỗi ngày:**
@@ -246,7 +247,7 @@ Có 3 nút: **Chơi tiếp** · **Đổi chủ đề** · **Trang chủ**.
 ### 8.1 Kiến trúc GĐ1
 - **Công nghệ:** trang tĩnh, JavaScript ES modules thuần, **không cần build**. Định tuyến bằng hash.
 - **Lưu trữ:** `localStorage`, khoá `manna.v2`, có số phiên bản schema và hàm chuyển đổi dữ liệu từ bản cũ.
-- **PWA:** `manifest.webmanifest` và `sw.js`. Phần khung app cache-first; phông chữ dùng stale-while-revalidate.
+- **PWA:** `manifest.webmanifest` và `sw.js`. Phần khung app ưu tiên tải mới qua mạng, mất mạng thì dùng bản đã lưu; phông chữ dùng bản đã lưu và cập nhật ngầm.
 
 ```
 index.html               khung trang + cảnh nền SVG
@@ -332,11 +333,11 @@ scripts/extract_verses.py  sinh dữ liệu câu gốc
 ## 11. Danh sách việc GĐ1
 - [x] Thiết kế trang chủ
 - [x] Đặc tả
-- [ ] Dữ liệu câu gốc từ nguồn công khai + script sinh dữ liệu
-- [ ] Module thuần: text, progress, random, store + kiểm thử
-- [ ] Trang chủ, chọn chủ đề, hồ sơ & cài đặt
-- [ ] Điền Từ, Xếp Câu, Thuộc Lòng, kết quả
-- [ ] Góc Ôn Tập (thẻ ghi nhớ + thư viện)
-- [ ] Huy hiệu, câu gốc hôm nay, mục tiêu ngày
-- [ ] PWA (chơi offline)
-- [ ] CI chạy kiểm thử
+- [x] Dữ liệu câu gốc từ nguồn công khai + script sinh dữ liệu
+- [x] Module thuần: text, progress, random, store + kiểm thử
+- [x] Trang chủ, chọn chủ đề, hồ sơ & cài đặt
+- [x] Điền Từ, Xếp Câu, Thuộc Lòng, kết quả
+- [x] Góc Ôn Tập (thẻ ghi nhớ + thư viện)
+- [x] Huy hiệu, câu gốc hôm nay, mục tiêu ngày
+- [x] PWA (chơi offline)
+- [x] CI chạy kiểm thử

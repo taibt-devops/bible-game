@@ -2,17 +2,128 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Manna - Học thuộc câu gốc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7e6c2">
+<meta name="description" content="Manna — trò chơi giúp giới trẻ học thuộc câu gốc Kinh Thánh.">
+<title>Manna · Học thuộc câu gốc</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&family=Pangolin&family=Paytone+One&display=swap">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/game.css">
 </head>
-<body>
-<div id="ticker"></div>
-<main id="app"></main>
-<div id="toast"></div>
-<script src="verses.js"></script>
-<script src="app.js"></script>
+<body data-route="home">
+<svg class="scene" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ccbe0"/><stop offset=".42" stop-color="#cfe6e4"/><stop offset=".62" stop-color="#fbe3bd"/><stop offset="1" stop-color="#f4c991"/>
+    </linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#fff6d6" stop-opacity=".95"/><stop offset="1" stop-color="#fff6d6" stop-opacity="0"/></radialGradient>
+    <pattern id="stripe" width="44" height="10" patternUnits="userSpaceOnUse"><rect width="22" height="10" fill="#c94a35"/><rect x="22" width="22" height="10" fill="#fbefd9"/></pattern>
+    <path id="frond" d="M0 0 C-30 -30 -86 -34 -128 -6 C-84 -16 -40 -10 0 0 Z"/>
+    <g id="sheep"><ellipse cx="0" cy="0" rx="13" ry="9" fill="#fffdf6"/><circle cx="-7" cy="-4" r="6" fill="#fffdf6"/><circle cx="6" cy="-5" r="6" fill="#fffdf6"/><ellipse cx="13" cy="-3" rx="4.5" ry="5" fill="#4a3a33"/><rect x="-8" y="6" width="3" height="7" fill="#4a3a33"/><rect x="5" y="6" width="3" height="7" fill="#4a3a33"/></g>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <circle cx="1060" cy="250" r="240" fill="url(#glow)"/>
+  <circle cx="1060" cy="250" r="60" fill="#fff3c4"/>
+  <g class="cloud" fill="#fff" opacity=".85"><ellipse cx="260" cy="150" rx="74" ry="22"/><circle cx="228" cy="136" r="28"/><circle cx="274" cy="124" r="37"/><circle cx="316" cy="142" r="24"/></g>
+  <g class="cloud b" fill="#fff" opacity=".75"><ellipse cx="700" cy="86" rx="60" ry="17"/><circle cx="676" cy="76" r="22"/><circle cx="712" cy="66" r="29"/><circle cx="744" cy="80" r="18"/></g>
+  <g class="cloud" fill="#fff" opacity=".8"><ellipse cx="1360" cy="150" rx="66" ry="19"/><circle cx="1330" cy="138" r="24"/><circle cx="1372" cy="126" r="32"/><circle cx="1408" cy="142" r="20"/></g>
+
+  <path d="M0 380 C140 330 260 352 380 322 C520 286 640 332 760 312 C900 286 1020 332 1160 302 C1300 272 1440 322 1600 302 L1600 560 L0 560 Z" fill="#b8cbb4"/>
+  <path d="M0 420 C180 382 330 412 470 396 C640 376 760 412 930 396 C1110 380 1260 412 1600 386 L1600 560 L0 560 Z" fill="#a5c08f"/>
+  <path d="M0 452 C400 442 1200 445 1600 449 L1600 510 L0 510 Z" fill="#86c0c8"/>
+  <g stroke="#e9f6f6" stroke-width="3" stroke-linecap="round" opacity=".7"><path d="M620 466h40M700 480h26M860 470h50M1180 476h34M420 482h30"/></g>
+  <g transform="translate(990 470)"><path d="M-26 6 H30 L20 20 H-16 Z" fill="#8a5a33"/><path d="M2 6 V-34" stroke="#6e4422" stroke-width="3"/><path d="M5 -32 V3 H28 Z" fill="#fff8e6"/></g>
+  <path d="M0 500 C200 470 420 506 640 488 C860 470 1060 506 1280 486 C1420 474 1520 490 1600 482 L1600 1000 L0 1000 Z" fill="#93b77a"/>
+  <g fill="#577a45"><ellipse cx="452" cy="470" rx="9" ry="34"/><ellipse cx="470" cy="478" rx="8" ry="26"/><ellipse cx="1130" cy="468" rx="9" ry="32"/></g>
+  <use href="#sheep" x="560" y="505"/><use href="#sheep" x="606" y="512"/><use href="#sheep" x="1040" y="500" transform="translate(2080 0) scale(-1 1)"/>
+  <path d="M0 560 C300 540 600 572 900 552 C1200 534 1400 560 1600 548 L1600 1000 L0 1000 Z" fill="#86ad6d"/>
+
+  <!-- left buildings -->
+  <rect x="-16" y="222" width="204" height="18" rx="4" fill="#d6b07a"/>
+  <rect x="-10" y="236" width="190" height="560" fill="#e9cc9c"/>
+  <rect x="160" y="236" width="20" height="560" fill="#d7b583"/>
+  <g fill="#45606f">
+    <path d="M30 360 V320 A22 22 0 0 1 74 320 V360 Z"/><path d="M104 360 V320 A22 22 0 0 1 148 320 V360 Z"/>
+    <path d="M30 490 V450 A22 22 0 0 1 74 450 V490 Z"/><path d="M104 490 V450 A22 22 0 0 1 148 450 V490 Z"/>
+  </g>
+  <g fill="#4f87a6"><rect x="18" y="312" width="12" height="48" rx="2"/><rect x="74" y="312" width="12" height="48" rx="2"/><rect x="92" y="312" width="12" height="48" rx="2"/><rect x="148" y="312" width="12" height="48" rx="2"/></g>
+  <g fill="#9a6436"><rect x="24" y="360" width="56" height="12" rx="3"/><rect x="98" y="360" width="56" height="12" rx="3"/><rect x="24" y="490" width="56" height="12" rx="3"/><rect x="98" y="490" width="56" height="12" rx="3"/></g>
+  <g fill="#5f9446"><circle cx="34" cy="358" r="9"/><circle cx="50" cy="354" r="10"/><circle cx="68" cy="358" r="9"/><circle cx="110" cy="358" r="9"/><circle cx="127" cy="354" r="10"/><circle cx="144" cy="358" r="9"/></g>
+  <g fill="#e8728a"><circle cx="40" cy="352" r="4"/><circle cx="60" cy="350" r="4"/><circle cx="118" cy="351" r="4"/><circle cx="138" cy="352" r="4"/></g>
+  <rect x="164" y="392" width="214" height="16" rx="4" fill="#dcbd8c"/>
+  <rect x="170" y="404" width="200" height="392" fill="#f1dbb2"/>
+  <path d="M232 520 V478 A24 24 0 0 1 280 478 V520 Z" fill="#45606f"/><rect x="226" y="518" width="60" height="10" rx="3" fill="#9a6436"/>
+  <rect x="186" y="610" width="170" height="186" fill="#6b4a33"/>
+  <g fill="#8a6440"><rect x="186" y="660" width="170" height="6"/><rect x="186" y="716" width="170" height="6"/></g>
+  <g><rect x="196" y="628" width="10" height="32" fill="#c2412d"/><rect x="208" y="634" width="8" height="26" fill="#3f8a3a"/><rect x="218" y="624" width="12" height="36" fill="#e3a425"/><rect x="232" y="632" width="9" height="28" fill="#4f87a6"/><rect x="262" y="630" width="11" height="30" fill="#6f5aa0"/><rect x="275" y="626" width="9" height="34" fill="#c2412d"/><rect x="300" y="636" width="34" height="24" rx="5" fill="#e9cc9c"/>
+     <rect x="198" y="684" width="12" height="32" fill="#3f8a3a"/><rect x="212" y="690" width="9" height="26" fill="#e9cc9c"/><rect x="236" y="686" width="10" height="30" fill="#c2412d"/><rect x="248" y="682" width="12" height="34" fill="#4f87a6"/><rect x="290" y="688" width="9" height="28" fill="#e3a425"/><rect x="301" y="684" width="11" height="32" fill="#3f8a3a"/></g>
+  <path d="M158 560 H382 L398 612 H142 Z" fill="url(#stripe)"/>
+  <g id="scallop"></g>
+  <!-- palm -->
+  <path d="M402 796 C394 650 412 520 382 334" fill="none" stroke="#8a6440" stroke-width="18" stroke-linecap="round"/>
+  <path d="M402 796 C394 650 412 520 382 334" fill="none" stroke="#6f4e30" stroke-width="18" stroke-dasharray="3 15" opacity=".6"/>
+  <g transform="translate(382 334)" fill="#4f8a3c">
+    <use href="#frond" transform="rotate(-8)"/><use href="#frond" transform="rotate(32) scale(.95)"/><use href="#frond" transform="rotate(75) scale(.8)"/>
+    <use href="#frond" transform="scale(-1 1) rotate(-8)"/><use href="#frond" transform="scale(-1 1) rotate(30) scale(.95)"/><use href="#frond" transform="scale(-1 1) rotate(75) scale(.8)"/>
+    <use href="#frond" transform="rotate(110) scale(.7)" fill="#3f7832"/><use href="#frond" transform="scale(-1 1) rotate(112) scale(.7)" fill="#3f7832"/>
+    <circle cx="-6" cy="10" r="6" fill="#8a5a2b"/><circle cx="6" cy="12" r="6" fill="#7a4c22"/><circle cx="0" cy="18" r="6" fill="#8a5a2b"/>
+  </g>
+
+  <!-- right buildings -->
+  <path d="M1292 300 A56 56 0 0 1 1404 300 Z" fill="#d9a86a"/><rect x="1344" y="236" width="6" height="12" fill="#b9874e"/>
+  <rect x="1250" y="296" width="196" height="16" rx="4" fill="#cfa36c"/>
+  <rect x="1256" y="308" width="184" height="490" fill="#e3be8c"/>
+  <g fill="#45606f"><path d="M1282 400 V364 A20 20 0 0 1 1322 364 V400 Z"/><path d="M1358 400 V364 A20 20 0 0 1 1398 364 V400 Z"/><path d="M1282 520 V484 A20 20 0 0 1 1322 484 V520 Z"/><path d="M1358 520 V484 A20 20 0 0 1 1398 484 V520 Z"/></g>
+  <rect x="1406" y="196" width="214" height="18" rx="4" fill="#dcbd8c"/>
+  <rect x="1414" y="210" width="210" height="590" fill="#efd6aa"/>
+  <rect x="1414" y="210" width="16" height="590" fill="#ddbf8f"/>
+  <g fill="#45606f"><path d="M1452 310 V270 A22 22 0 0 1 1496 270 V310 Z"/><path d="M1530 310 V270 A22 22 0 0 1 1574 270 V310 Z"/><path d="M1452 440 V400 A22 22 0 0 1 1496 400 V440 Z"/><path d="M1530 440 V400 A22 22 0 0 1 1574 400 V440 Z"/></g>
+  <g fill="#4f87a6"><rect x="1440" y="262" width="12" height="48" rx="2"/><rect x="1496" y="262" width="12" height="48" rx="2"/><rect x="1518" y="262" width="12" height="48" rx="2"/><rect x="1574" y="262" width="12" height="48" rx="2"/></g>
+  <rect x="1436" y="440" width="170" height="10" fill="#9a6436"/><g stroke="#9a6436" stroke-width="4"><path d="M1446 450v30M1476 450v30M1506 450v30M1536 450v30M1566 450v30M1596 450v30"/></g><rect x="1436" y="478" width="170" height="8" fill="#9a6436"/>
+  <g fill="#5f9446"><circle cx="1424" cy="226" r="12"/><circle cx="1442" cy="232" r="10"/><circle cx="1420" cy="250" r="9"/><circle cx="1428" cy="272" r="8"/><circle cx="1418" cy="292" r="7"/><circle cx="1604" cy="228" r="12"/><circle cx="1590" cy="234" r="9"/></g>
+  <g fill="#f29bb0"><circle cx="1432" cy="236" r="4"/><circle cx="1424" cy="262" r="3.5"/><circle cx="1598" cy="226" r="4"/></g>
+  <!-- olive tree -->
+  <path d="M1222 796 C1206 700 1238 640 1210 520 M1214 600 C1240 560 1270 540 1290 470" fill="none" stroke="#7a5a3a" stroke-width="16" stroke-linecap="round"/>
+  <g fill="#8a9f6a"><ellipse cx="1200" cy="460" rx="70" ry="48"/><ellipse cx="1262" cy="420" rx="64" ry="44"/><ellipse cx="1150" cy="430" rx="50" ry="36"/><ellipse cx="1300" cy="470" rx="46" ry="34"/></g>
+  <g fill="#77905a"><ellipse cx="1214" cy="478" rx="44" ry="26"/><ellipse cx="1286" cy="440" rx="36" ry="22"/><ellipse cx="1168" cy="446" rx="30" ry="18"/></g>
+  <g fill="#a9b98a"><ellipse cx="1240" cy="400" rx="26" ry="12"/><ellipse cx="1180" cy="420" rx="20" ry="9"/></g>
+
+  <!-- bunting -->
+  <path d="M188 246 Q800 430 1414 230" fill="none" stroke="#6b4a2b" stroke-width="2.5"/>
+  <g id="flags"></g>
+
+  <!-- plaza -->
+  <path d="M0 780 C400 764 1200 764 1600 780 L1600 1000 L0 1000 Z" fill="#e7c896"/>
+  <path d="M0 780 C400 764 1200 764 1600 780" fill="none" stroke="#cfa874" stroke-width="7"/>
+  <g id="cobbles"></g>
+  <g id="dapple" fill="#a77b45"></g>
+
+  <!-- foreground plants -->
+  <g fill="#4c7a38"><circle cx="40" cy="880" r="90"/><circle cx="150" cy="930" r="70"/><circle cx="-10" cy="790" r="70"/></g>
+  <g fill="#5f9446"><circle cx="70" cy="860" r="60"/><circle cx="170" cy="910" r="44"/><circle cx="20" cy="800" r="44"/></g>
+  <g fill="#f29bb0"><circle cx="60" cy="830" r="7"/><circle cx="110" cy="870" r="7"/><circle cx="30" cy="880" r="6"/><circle cx="160" cy="900" r="6"/><circle cx="10" cy="780" r="6"/></g>
+  <g transform="translate(1440 860)"><path d="M-46 -10 H46 L36 70 H-36 Z" fill="#c46a3c"/><rect x="-52" y="-22" width="104" height="16" rx="5" fill="#d27a48"/>
+    <g fill="#5f9446"><circle cx="-26" cy="-34" r="22"/><circle cx="4" cy="-46" r="26"/><circle cx="30" cy="-32" r="20"/></g>
+    <g fill="#e8728a"><circle cx="-20" cy="-44" r="6"/><circle cx="8" cy="-58" r="6"/><circle cx="28" cy="-40" r="6"/><circle cx="-4" cy="-30" r="5"/></g></g>
+  <g fill="#4c7a38"><circle cx="1580" cy="900" r="80"/><circle cx="1620" cy="820" r="70"/></g>
+  <g fill="#5f9446"><circle cx="1560" cy="870" r="50"/><circle cx="1600" cy="800" r="40"/></g>
+</svg>
+<canvas class="manna" id="manna" aria-hidden="true"></canvas>
+
+<header class="ticker" aria-label="Hôm nay">
+  <div class="label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18h18l-1.6-10.5-4.6 4.2L12 5l-2.8 6.7-4.6-4.2z" fill="#e3a425"/></svg>HÔM NAY</div>
+  <div class="marquee"><div class="track" id="ticker"></div></div>
+</header>
+
+<div id="deco"></div>
+<main class="page" id="app"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">Manna cần bật JavaScript để chơi.</p></noscript>
+<script type="module" src="src/main.js"></script>
 </body>
 </html>
