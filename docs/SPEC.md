@@ -301,9 +301,13 @@ scripts/extract_verses.py  sinh dữ liệu câu gốc
 Bản v2 được chuyển tự động: dựng lại `days` từ chuỗi ngày, và tạo một sự kiện "nhập" chứa số XP cũ để đưa lên máy chủ khi đăng nhập lần đầu.
 
 ### 8.3 Kiểm thử
-- `npm test`: chạy `node --test`, kiểm tra các module thuần và dữ liệu (id duy nhất, chủ đề hợp lệ, không còn ký tự `Ð`).
-- `npm run test:e2e` (tuỳ chọn, cần Playwright): mở trang, chơi thử mỗi chế độ, kiểm tra không có lỗi JS.
-- GitHub Actions chạy `npm test` mỗi lần push.
+- `npm test`: chạy `node --test`, kiểm tra:
+  - các module thuần và dữ liệu (id duy nhất, chủ đề hợp lệ, không còn ký tự `Ð`);
+  - toàn bộ API máy chủ trên SQLite trong bộ nhớ (đăng nhập PIN/Google, khoá PIN, phân quyền, đồng bộ không cộng trùng, bảng xếp hạng, câu gốc tuần).
+- `npm run test:e2e` (cần Playwright):
+  - `e2e/smoke.mjs`: chơi mọi chế độ khi không có máy chủ.
+  - `e2e/online.mjs`: chạy máy chủ thật với cơ sở dữ liệu tạm, đi hết luồng vào nhóm → đồng bộ → xếp hạng → nhóm trưởng chọn câu tuần và đặt lại PIN → đăng xuất / đăng nhập lại.
+- GitHub Actions chạy cả hai mỗi lần push.
 
 ### 8.4 Triển khai (AWS)
 ```
@@ -458,8 +462,8 @@ Kết quả: chơi trên điện thoại và máy tính, kể cả lúc mất m�
 
 ## 12. Danh sách việc GĐ2
 - [x] Cập nhật đặc tả (quyết định, AWS, backend)
-- [ ] Dữ liệu toàn bộ Kinh Thánh 1934 cho máy chủ
-- [ ] Máy chủ: cơ sở dữ liệu, đăng nhập PIN + Google, nhóm, đồng bộ, bảng xếp hạng, câu gốc tuần + kiểm thử
-- [ ] Trình duyệt: schema v3, hàng đợi sự kiện, đồng bộ
-- [ ] Giao diện: đăng nhập, nhóm, bảng xếp hạng, bảng vàng, công cụ nhóm trưởng
-- [ ] Triển khai AWS: tài liệu, script, systemd, nginx, sao lưu
+- [x] Dữ liệu toàn bộ Kinh Thánh 1934 cho máy chủ
+- [x] Máy chủ: cơ sở dữ liệu, đăng nhập PIN + Google, nhóm, đồng bộ, bảng xếp hạng, câu gốc tuần + kiểm thử
+- [x] Trình duyệt: schema v3, hàng đợi sự kiện, đồng bộ
+- [x] Giao diện: đăng nhập, nhóm, bảng xếp hạng, bảng vàng, công cụ nhóm trưởng
+- [x] Triển khai AWS: tài liệu, script, systemd, nginx, sao lưu

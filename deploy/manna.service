@@ -1,0 +1,31 @@
+[Unit]
+Description=Manna API (học thuộc câu gốc)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=manna
+Group=manna
+WorkingDirectory=/opt/manna/current
+EnvironmentFile=/etc/manna/manna.env
+ExecStart=/usr/bin/node --disable-warning=ExperimentalWarning server/index.js
+Restart=on-failure
+RestartSec=3
+# Giới hạn quyền
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/manna
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

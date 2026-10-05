@@ -1,0 +1,9 @@
+[Unit]
+Description=Sao lưu cơ sở dữ liệu Manna lên S3
+
+[Service]
+Type=oneshot
+User=manna
+Group=manna
+EnvironmentFile=/etc/manna/manna.env
+ExecStart=/bin/bash /opt/manna/current/deploy/backup.sh
