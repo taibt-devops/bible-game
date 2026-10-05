@@ -1,0 +1,43 @@
+# Chạy Manna đầy đủ: web (nginx) + api (Node) + cơ sở dữ liệu SQLite trong volume "manna-data".
+#   docker compose up -d --build      → mở http://localhost:8080
+# Nhóm thử có sẵn: mã MANNA7, nhóm trưởng "Nhóm trưởng", PIN 1234 (tắt bằng SEED_DEMO=0).
+# Quản trị: docker compose exec api node server/cli.js help
+name: manna
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24-alpine}
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      # Đặt khi mở game qua tên miền khác localhost (vd. https://manna.example.com).
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-}
+      # OAuth client ID của Google; để trống thì chỉ đăng nhập bằng mã nhóm + PIN.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      # 0 khi chạy http://localhost; đặt 1 khi có HTTPS phía trước.
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}
+      SEED_DEMO: ${SEED_DEMO:-1}
+      # nginx đứng trước: IP người chơi là phần tử cuối của X-Forwarded-For.
+      PROXY_HOPS: "1"
+    volumes:
+      - manna-data:/data
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args:
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:1.27-alpine}
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  manna-data:

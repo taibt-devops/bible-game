@@ -21,3 +21,16 @@ jobs:
       - run: npm i --no-save playwright@1
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build --wait
+      - name: Kiểm tra qua nginx
+        run: |
+          curl -fsS http://localhost:8080/ | grep -q "Manna"
+          curl -fsS http://localhost:8080/api/health
+          curl -fsS -H "content-type: application/json" -H "origin: http://localhost:8080" \
+            -d '{"code":"MANNA7","name":"Nhóm trưởng","pin":"1234"}' http://localhost:8080/api/auth/pin/login | grep -q '"role":"leader"'
+      - if: failure()
+        run: docker compose logs

@@ -9,7 +9,8 @@
     "start": "NODE_ENV=production node --disable-warning=ExperimentalWarning server/index.js",
     "test": "node --disable-warning=ExperimentalWarning --test \"tests/**/*.test.js\"",
     "test:e2e": "node e2e/smoke.mjs && node --disable-warning=ExperimentalWarning e2e/online.mjs",
-    "verses": "python3 scripts/extract_verses.py"
+    "verses": "python3 scripts/extract_verses.py",
+    "test:docker": "node e2e/docker.mjs"
   },
   "engines": {
     "node": ">=22.13"

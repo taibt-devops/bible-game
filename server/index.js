@@ -5,6 +5,7 @@ import { openDb } from "./db.js";
 import { createApp } from "./app.js";
 import { loadBible } from "./bible.js";
 import { createGoogleVerifier } from "./google.js";
+import { seedDemo, DEMO } from "./admin.js";
 
 const env = process.env;
 const production = env.NODE_ENV === "production";
@@ -23,6 +24,9 @@ const config = {
 };
 
 const db = openDb(config.dbPath);
+if (env.SEED_DEMO === "1" && seedDemo(db)) {
+  console.log(`Đã tạo nhóm thử: mã ${DEMO.code}, nhóm trưởng "${DEMO.leader}", PIN ${DEMO.pin}`);
+}
 const app = createApp({
   db,
   config,
