@@ -3,7 +3,7 @@
 > Game nhẹ trên web giúp giới trẻ học thuộc câu gốc Kinh Thánh.
 > Phong cách giao diện: sổ tay giấy, bảng gỗ treo, làng quê Ga-li-lê buổi sáng (xem `design/trang-chu.html`).
 
-Phiên bản tài liệu: 1.0 · Cập nhật: 10/2026
+Phiên bản tài liệu: 2.0 · Cập nhật: 10/2026
 
 ---
 
@@ -29,8 +29,8 @@ Phiên bản tài liệu: 1.0 · Cập nhật: 10/2026
 
 | Giai đoạn | Nội dung | Trạng thái |
 |---|---|---|
-| **GĐ1 — Chơi một mình (offline)** | Trang chủ, 4 chế độ chơi, chọn chủ đề & độ khó, hồ sơ cục bộ, XP/cấp/chuỗi ngày, lịch ôn tập, thư viện câu gốc, huy hiệu, câu gốc hôm nay, cài đặt, PWA | **Đang làm** |
-| **GĐ2 — Nhóm & bảng xếp hạng** | Tài khoản theo nhóm, đồng bộ tiến độ, bảng xếp hạng tuần của nhóm, nhóm trưởng chọn "câu gốc của tuần" và thêm câu riêng | Kế hoạch |
+| **GĐ1 — Chơi một mình (offline)** | Trang chủ, 4 chế độ chơi, chọn chủ đề & độ khó, hồ sơ cục bộ, XP/cấp/chuỗi ngày, lịch ôn tập, thư viện câu gốc, huy hiệu, câu gốc hôm nay, cài đặt, PWA | **Xong** |
+| **GĐ2 — Nhóm & bảng xếp hạng** | Đăng nhập (mã nhóm + PIN, Google), nhóm thanh niên, đồng bộ tiến độ nhiều máy, bảng xếp hạng tuần, bảng vàng top 3, nhóm trưởng đặt "câu gốc tuần" từ toàn bộ Kinh Thánh, quản lý thành viên. Chạy trên AWS (S3 + CloudFront + EC2) | **Đang làm** |
 | **GĐ3 — Phòng học trực tuyến** | Phòng học (lớp học với bàn và avatar người đang online), thi đấu 1v1, cổ vũ bằng biểu tượng cảm xúc | Kế hoạch |
 
 ---
@@ -49,7 +49,22 @@ Phiên bản tài liệu: 1.0 · Cập nhật: 10/2026
 - **Sửa lỗi nguồn** ghi rõ trong `FIXES` của script (hiện có: Thi Thiên 119:9 "Ngươi trẻ tuổi" → "Người trẻ tuổi").
 - Các bản dịch có bản quyền (Truyền Thống Hiệu Đính 2010, Bản Dịch Mới…) chỉ thêm khi có giấy phép.
 
-### 3.2 Bộ câu khởi đầu
+### 3.2 Quy trình nội dung (đã quyết định)
+Nguyên tắc: **không ai gõ tay văn bản Kinh Thánh**, kể cả nhóm trưởng. Mọi câu đều được trích tự động từ cùng một nguồn công cộng.
+
+| Việc | Ai làm | Cách làm |
+|---|---|---|
+| Bộ câu chung của app | Chủ dự án duyệt | Thêm địa chỉ câu vào danh sách trong `scripts/extract_verses.py` → chạy script → kiểm thử dữ liệu tự động → commit. |
+| Câu gốc tuần của nhóm | Nhóm trưởng | Chọn sách, chương, câu trong **toàn bộ Kinh Thánh 1934** ngay trong app. Máy chủ tự trích văn bản, nên khớp được với câu gốc bài giảng Chúa Nhật mà không có lỗi gõ. |
+| Sửa lỗi bản số hoá | Chủ dự án | Chỉ qua danh sách `FIXES` của script, mỗi mục ghi lý do. Script báo lỗi nếu chỗ sửa không còn khớp nguồn. |
+| Thêm bản dịch khác | Chưa làm | Truyền Thống Hiệu Đính 2010 và Bản Dịch Mới có bản quyền, cần giấy phép. Dữ liệu đã có chỗ ghi tên bản dịch để thêm sau. |
+
+Lý do chọn cách này:
+- Độ chính xác của Lời Chúa là nguyên tắc số 1.
+- Nhóm trưởng vẫn linh hoạt theo bài giảng hằng tuần.
+- Không cần người kiểm duyệt văn bản, vì không có chỗ nào nhập văn bản tự do.
+
+### 3.3 Bộ câu khởi đầu
 54 câu, 9 chủ đề:
 
 | Mã | Chủ đề | Ví dụ |
@@ -64,7 +79,7 @@ Phiên bản tài liệu: 1.0 · Cập nhật: 10/2026
 | `salvation` | Ơn cứu rỗi | Rô-ma 6:23, 2 Cô-rinh-tô 5:17 |
 | `life` | Sống đẹp | Ga-la-ti 5:22-23, Mi-chê 6:8 |
 
-### 3.3 Cấu trúc một câu gốc
+### 3.4 Cấu trúc một câu gốc
 ```js
 {
   id: "john-3-16",          // duy nhất, không đổi
@@ -267,49 +282,146 @@ tests/*.test.js          kiểm thử (node --test)
 scripts/extract_verses.py  sinh dữ liệu câu gốc
 ```
 
-### 8.2 Trạng thái lưu cục bộ
+### 8.2 Trạng thái lưu cục bộ (schema v3)
 ```js
 {
-  v: 2,
+  v: 3,
   profile: { name, avatar },
   settings: { sound, dailyGoal, lenient, bigText },
-  xp, streak, bestStreak, lastActive, today: { date, xp },
-  verses: { [id]: { box, due, seen, correct, lastUp } },
+  xp, bestStreak, today: { date, xp },
+  days: ["2026-10-04", "2026-10-05"],          // các ngày có học (tối đa 400), dùng tính chuỗi
+  verses: { [id]: { box, due, seen, correct, lastUp, at } },   // at = thời điểm cập nhật, dùng khi gộp
   badges: { [id]: "2026-10-05" },
   stats: { rounds, perfectRounds, votdDone, votdCount },
-  last: { topic, level }
+  extraVerses: { [id]: { id, ref, topic: "group", text, words } },  // câu gốc tuần của nhóm
+  last: { topic, level },
+  sync: { deviceId, pending: [/* sự kiện XP chưa gửi */], lastSync }
 }
 ```
+Bản v2 được chuyển tự động: dựng lại `days` từ chuỗi ngày, và tạo một sự kiện "nhập" chứa số XP cũ để đưa lên máy chủ khi đăng nhập lần đầu.
 
 ### 8.3 Kiểm thử
 - `npm test`: chạy `node --test`, kiểm tra các module thuần và dữ liệu (id duy nhất, chủ đề hợp lệ, không còn ký tự `Ð`).
 - `npm run test:e2e` (tuỳ chọn, cần Playwright): mở trang, chơi thử mỗi chế độ, kiểm tra không có lỗi JS.
 - GitHub Actions chạy `npm test` mỗi lần push.
 
-### 8.4 Triển khai
-- **Cloudflare Pages** (giống Bufopia) hoặc GitHub Pages: không cần lệnh build, thư mục xuất là gốc repo.
-- Chạy thử ở máy: `npm run dev` (hoặc `python3 -m http.server`). ES modules không chạy khi mở file trực tiếp (`file://`).
+### 8.4 Triển khai (AWS)
+```
+Người chơi ──HTTPS──▶ CloudFront  (manna.<tên-miền>)
+                        ├── /*       → S3 (trang tĩnh, truy cập qua OAC)
+                        └── /api/*   → EC2 (Node.js 24 + SQLite) qua HTTPS (nginx + Let's Encrypt)
+```
+- **Một tên miền duy nhất.** Trang và API cùng nguồn gốc, nên dùng được cookie HttpOnly mà không cần CORS.
+- **CloudFront, nhánh `/api/*`:**
+  - Cache policy `CachingDisabled`.
+  - Origin request policy `AllViewerExceptHostHeader`.
+  - Gửi kèm header bí mật `X-Origin-Verify` để EC2 chỉ nhận yêu cầu đi qua CloudFront.
+- **S3:** chặn truy cập công khai. Dùng `index.html` làm default root object.
+- **EC2:**
+  - Máy t4g.small (hoặc t3.small) là đủ.
+  - Node 24 LTS chạy bằng systemd; nginx làm TLS.
+  - Dữ liệu ở `/var/lib/manna/manna.db`, sao lưu hằng ngày lên S3.
+- Hướng dẫn từng bước và script: `docs/DEPLOY.md`, thư mục `deploy/`.
+- **Chạy thử ở máy:** `npm start` chạy cả API lẫn trang tĩnh ở `http://localhost:8787`.
 
-### 8.5 GĐ2 — Backend đề xuất
-- **Nền tảng:** Cloudflare Pages Functions + D1 (SQLite), cùng chỗ với trang tĩnh, gói miễn phí đủ cho vài nghìn người dùng.
-- **Đăng nhập:** mã nhóm + tên hiển thị + mã PIN 4 số do người chơi đặt, không cần email. Nhóm trưởng có quyền quản trị nhóm.
-- **Bảng dữ liệu:**
-  - `groups(id, code, name)`
-  - `users(id, group_id, name, pin_hash, avatar, role)`
-  - `progress(user_id, verse_id, box, due, seen, correct, updated_at)`
-  - `xp_events(id, user_id, amount, mode, created_at)`
-  - `weekly_verses(group_id, week_start, verse_id)`
-  - `custom_verses(group_id, id, ref, topic, text)`
-- **API:**
-  - `POST /api/join`, `POST /api/login`, `GET /api/me`
-  - `PUT /api/progress` (gửi theo lô, bản nào `updated_at` mới hơn thì thắng)
-  - `POST /api/xp`
-  - `GET /api/leaderboard?period=week`
-  - `GET/PUT /api/weekly-verse`
-- **Đồng bộ:** máy người chơi vẫn là nơi lưu chính (offline-first). Các thay đổi nằm trong hàng đợi, gửi lên khi có mạng.
+### 8.5 GĐ2 — Backend
+**Công nghệ**
+- Node.js ≥ 22.13 (khuyên dùng 24 LTS).
+- **Không có thư viện ngoài**: HTTP bằng `node:http`, cơ sở dữ liệu bằng `node:sqlite`, mật mã bằng `node:crypto`.
+- Code nằm trong thư mục `server/`.
+- Luật gộp dữ liệu dùng chung một module với trình duyệt (`src/lib/sync.js`).
+
+**Đăng nhập (dùng được cả hai cách)**
+
+| Cách | Dành cho | Chi tiết |
+|---|---|---|
+| Mã nhóm + tên + PIN 4–6 số | Bạn trẻ không có, hoặc không muốn dùng email | Tên là duy nhất trong nhóm. Sai PIN 5 lần thì khoá 15 phút. Nhóm trưởng đặt lại PIN khi bạn quên. |
+| Google | Nhóm trưởng, bạn lớn tuổi | Chỉ tài khoản Google mới **tạo được nhóm**. Người dùng PIN có thể liên kết thêm Google để đăng nhập trên máy khác. |
+
+- **Phiên đăng nhập:** cookie `manna_sid` (HttpOnly, Secure, SameSite=Lax, 90 ngày). Máy chủ chỉ lưu bản băm SHA-256 của token.
+- **Chống CSRF:** các yêu cầu ghi bắt buộc gửi JSON và phải có `Origin` hợp lệ.
+- **PIN:** băm bằng scrypt, mỗi người một salt riêng.
+- **Giới hạn tần suất:** 20 yêu cầu đăng nhập mỗi phút cho mỗi IP.
+
+**Vai trò**
+- `member`: thành viên.
+- `leader`: nhóm trưởng, được:
+  - đổi tên nhóm và đổi mã mời;
+  - đặt câu gốc tuần;
+  - đặt lại PIN cho thành viên;
+  - mời thành viên ra khỏi nhóm;
+  - cử thêm nhóm trưởng.
+
+Nhóm phải luôn còn ít nhất một nhóm trưởng.
+
+**Đồng bộ nhiều máy, chơi được khi mất mạng**
+1. Mỗi lượt chơi hoặc thẻ ôn tạo một *sự kiện* `{ id, day, at, xp, kind, mode, perfect, votd }` trong hàng đợi trên máy.
+2. Khi có mạng (sau mỗi lượt, khi mở app, khi có mạng lại), máy gửi `POST /api/sync` kèm:
+   - các sự kiện đang chờ;
+   - trạng thái từng câu;
+   - huy hiệu;
+   - các ngày đã học.
+3. Máy chủ gộp dữ liệu:
+   - **Sự kiện:** bỏ qua id đã nhận, nên gửi lại bao nhiêu lần cũng không cộng trùng.
+   - **Trạng thái câu:** giữ bản có `at` mới nhất.
+   - **Huy hiệu và ngày học:** lấy hợp của hai bên.
+   - **XP và thống kê:** tính bằng tổng các sự kiện.
+4. Máy nhận lại trạng thái đã gộp, xoá các sự kiện đã được xác nhận khỏi hàng đợi.
+
+Kết quả: chơi trên điện thoại và máy tính, kể cả lúc mất mạng, XP vẫn cộng đúng và không mất tiến độ.
+
+**Chống gian lận nhẹ.** Máy chủ từ chối sự kiện nếu:
+- XP > 250 trong một sự kiện;
+- tổng XP > 3.000 trong một ngày;
+- ngày của sự kiện cũ hơn 60 ngày hoặc nằm ở tương lai.
+
+**Bảng xếp hạng**
+- Tính theo tuần ISO (thứ Hai đến Chủ Nhật), chỉ trong nhóm.
+- Hiển thị top 20 và vị trí của mình. Có tab "Mọi lúc".
+- Dải đầu trang chủ hiện "Bảng vàng tuần" với top 3 (giống Bufopia).
+
+**Câu gốc tuần**
+- Khi nhóm trưởng đặt câu gốc tuần, câu đó thay "câu gốc hôm nay" cho cả nhóm trong tuần.
+- Thưởng +20 XP mỗi ngày như thường.
+- Câu được lưu xuống máy để học khi mất mạng.
+
+**Bảng dữ liệu (SQLite)**
+- `groups(id, code, name, created_at)`
+- `users(id, group_id, name, name_key, avatar, role, pin_hash, google_sub, email, failed_pins, locked_until, created_at, last_seen)`
+- `sessions(token_hash, user_id, expires_at)`
+- `events(user_id, id, day, week, at, xp, kind, mode, perfect, votd)`
+- `user_verses(user_id, verse_id, box, due, seen, correct, last_up, at)`
+- `user_badges(user_id, badge_id, day)`
+- `user_days(user_id, day)`
+- `weekly_verses(group_id, week, verse_id, ref, text, set_by)`
+
+**API**
+
+| Phương thức | Đường dẫn | Việc |
+|---|---|---|
+| GET | `/api/health`, `/api/config` | Kiểm tra sống; Google client ID |
+| POST | `/api/auth/pin/join`, `/api/auth/pin/login` | Tạo tài khoản / đăng nhập bằng mã nhóm + tên + PIN |
+| POST | `/api/auth/google`, `/api/auth/logout` | Đăng nhập Google; đăng xuất |
+| GET, PATCH, DELETE | `/api/me` | Xem, sửa tên/avatar, xoá tài khoản |
+| POST | `/api/me/google` | Liên kết Google cho tài khoản PIN |
+| POST | `/api/groups`, `/api/groups/join` | Tạo nhóm (Google) / vào nhóm bằng mã |
+| GET, PATCH | `/api/group` | Thông tin nhóm + thành viên; đổi tên nhóm |
+| POST | `/api/group/code` | Đổi mã mời |
+| PUT, DELETE | `/api/group/weekly-verse` | Đặt / bỏ câu gốc tuần |
+| POST, DELETE | `/api/group/members/:id/pin`, `/api/group/members/:id` | Đặt lại PIN / mời ra khỏi nhóm |
+| POST | `/api/group/members/:id/role` | Cử hoặc bỏ nhóm trưởng |
+| GET | `/api/bible/books`, `/api/bible/passage` | Danh sách sách; trích văn bản một đoạn |
+| POST | `/api/sync` | Đồng bộ tiến độ |
+| GET | `/api/leaderboard?period=week\|all` | Bảng xếp hạng nhóm |
+
+**Quyền riêng tư (người dùng phần lớn là trẻ vị thành niên)**
+- Chỉ lưu tên hiển thị và avatar; với người dùng Google thì lưu thêm email.
+- Dữ liệu nhóm chỉ thành viên trong nhóm thấy.
+- Người dùng tự xoá được tài khoản cùng toàn bộ dữ liệu.
+- Không có quảng cáo, không có theo dõi bên thứ ba.
 
 ### 8.6 GĐ3 — Phòng học & thi đấu
-- **Phòng học:** mỗi phòng là một Cloudflare Durable Object, kết nối qua WebSocket. Phòng giữ danh sách người online (bàn học + avatar như sảnh của Bufopia) và trạng thái *đang học / đang chờ bạn*.
+- **Phòng học:** WebSocket ngay trên máy chủ EC2. Một tiến trình Node giữ trạng thái các phòng; CloudFront chuyển tiếp WebSocket ở nhánh `/api/*`. Phòng giữ danh sách người online (bàn học + avatar như sảnh của Bufopia) và trạng thái *đang học / đang chờ bạn*.
 - **Thi đấu 1v1:**
   - Hai người nhận cùng 5 câu (cùng seed) ở chế độ Điền Từ.
   - Điểm = số câu đúng × 100 + thưởng tốc độ.
@@ -318,17 +430,19 @@ scripts/extract_verses.py  sinh dữ liệu câu gốc
 
 ---
 
-## 9. Ngoài phạm vi GĐ1
-- Tài khoản và đồng bộ nhiều thiết bị. Tiến độ GĐ1 nằm trên từng trình duyệt; xoá dữ liệu trình duyệt là mất.
-- Bảng xếp hạng thật, bạn bè, phòng học. Các nút này hiện "Sắp ra mắt".
+## 9. Ngoài phạm vi GĐ2
+- Phòng học trực tuyến và thi đấu 1v1 (GĐ3). Nút "Phòng học" vẫn hiện "Sắp ra mắt".
 - Nhiều bản dịch, tiếng Anh.
+- Chơi không đăng nhập vẫn được như GĐ1. Tiến độ khi đó chỉ nằm trên máy, và được đưa lên tài khoản ở lần đăng nhập đầu tiên.
 
-## 10. Câu hỏi cần chủ dự án quyết định
-1. Tên chính thức: giữ **Manna** hay đổi tên khác?
-2. Link nhóm thanh niên cho nút "Tham gia nhóm" (Facebook/Zalo). Điền vào `src/config.js`.
-3. GĐ2: dùng đăng nhập mã nhóm + PIN như đề xuất, hay đăng nhập Google?
-4. Ai rà soát và bổ sung câu gốc? Có cần thêm bản dịch khác (cần xin phép)?
-5. Tên miền và tài khoản Cloudflare để triển khai.
+## 10. Quyết định của chủ dự án
+| # | Câu hỏi | Quyết định |
+|---|---|---|
+| 1 | Tên chính thức | **Manna** |
+| 2 | Link nhóm thanh niên | Bổ sung sau, điền vào `src/config.js` (`groupUrl`) |
+| 3 | Cách đăng nhập | **Cả hai**: mã nhóm + PIN, và Google |
+| 4 | Rà soát nội dung | Theo quy trình mục 3.2: chỉ trích tự động từ bản 1934, nhóm trưởng chọn câu tuần theo địa chỉ |
+| 5 | Hạ tầng | **AWS**: S3 + CloudFront cho trang, EC2 cho API (mục 8.4) |
 
 ## 11. Danh sách việc GĐ1
 - [x] Thiết kế trang chủ
@@ -341,3 +455,11 @@ scripts/extract_verses.py  sinh dữ liệu câu gốc
 - [x] Huy hiệu, câu gốc hôm nay, mục tiêu ngày
 - [x] PWA (chơi offline)
 - [x] CI chạy kiểm thử
+
+## 12. Danh sách việc GĐ2
+- [x] Cập nhật đặc tả (quyết định, AWS, backend)
+- [ ] Dữ liệu toàn bộ Kinh Thánh 1934 cho máy chủ
+- [ ] Máy chủ: cơ sở dữ liệu, đăng nhập PIN + Google, nhóm, đồng bộ, bảng xếp hạng, câu gốc tuần + kiểm thử
+- [ ] Trình duyệt: schema v3, hàng đợi sự kiện, đồng bộ
+- [ ] Giao diện: đăng nhập, nhóm, bảng xếp hạng, bảng vàng, công cụ nhóm trưởng
+- [ ] Triển khai AWS: tài liệu, script, systemd, nginx, sao lưu
