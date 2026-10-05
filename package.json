@@ -5,10 +5,13 @@
   "description": "Manna — game học thuộc câu gốc Kinh Thánh cho giới trẻ",
   "type": "module",
   "scripts": {
-    "dev": "python3 -m http.server 5173",
-    "test": "node --test \"tests/**/*.test.js\"",
+    "dev": "node --disable-warning=ExperimentalWarning server/index.js",
+    "start": "NODE_ENV=production node --disable-warning=ExperimentalWarning server/index.js",
+    "test": "node --disable-warning=ExperimentalWarning --test \"tests/**/*.test.js\"",
     "test:e2e": "node e2e/smoke.mjs",
     "verses": "python3 scripts/extract_verses.py"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=22.13"
+  }
 }

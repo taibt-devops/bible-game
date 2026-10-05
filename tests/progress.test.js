@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  dayStr, addDays, dayDiff, levelInfo, applyXp, currentStreak, reviewVerse, verseStatus, isDue,
+  dayStr, addDays, dayDiff, isoWeek, addDay, streakFrom, bestStreakFrom, levelInfo, applyXp, currentStreak, reviewVerse, verseStatus, isDue,
   pickRound, reviewQueue, verseOfDay, roundStars, earnedBadges,
 } from "../src/lib/progress.js";
 import { defaultState } from "../src/lib/store.js";
@@ -15,6 +15,23 @@ test("ngày theo giờ địa phương và cộng trừ ngày", () => {
   assert.equal(dayDiff("2026-03-30", "2026-04-02"), 3);
 });
 
+test("tuần ISO", () => {
+  assert.equal(isoWeek("2026-10-05"), "2026-W41"); // thứ Hai
+  assert.equal(isoWeek("2026-10-11"), "2026-W41"); // Chủ Nhật cùng tuần
+  assert.equal(isoWeek("2026-10-12"), "2026-W42");
+  assert.equal(isoWeek("2027-01-01"), "2026-W53");
+  assert.equal(isoWeek("2025-12-29"), "2026-W01");
+});
+
+test("chuỗi ngày tính từ danh sách ngày học", () => {
+  const days = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-05"];
+  assert.equal(streakFrom(days, "2026-10-05"), 1);
+  assert.equal(streakFrom(days, "2026-10-04"), 3, "hôm nay chưa học thì tính đến hôm qua");
+  assert.equal(streakFrom(days, "2026-10-07"), 0);
+  assert.equal(bestStreakFrom(days), 3);
+  assert.deepEqual(addDay(["2026-10-02"], "2026-10-01"), ["2026-10-01", "2026-10-02"]);
+});
+
 test("levelInfo: 100 XP lên cấp 2, thêm 150 XP lên cấp 3", () => {
   assert.deepEqual(levelInfo(0), { level: 1, into: 0, need: 100 });
   assert.deepEqual(levelInfo(100), { level: 2, into: 0, need: 150 });
@@ -24,25 +41,26 @@ test("levelInfo: 100 XP lên cấp 2, thêm 150 XP lên cấp 3", () => {
 test("applyXp: chuỗi ngày, kỷ lục, mục tiêu ngày, lên cấp", () => {
   const s = defaultState();
   let r = applyXp(s, 30, "2026-10-01");
-  assert.equal(s.streak, 1);
+  assert.equal(currentStreak(s, "2026-10-01"), 1);
   assert.equal(r.goalReached, false);
   r = applyXp(s, 30, "2026-10-01");
   assert.equal(r.goalReached, true);
-  assert.equal(s.streak, 1);
+  assert.equal(currentStreak(s, "2026-10-01"), 1);
   applyXp(s, 10, "2026-10-02");
-  assert.equal(s.streak, 2);
+  assert.equal(currentStreak(s, "2026-10-02"), 2);
   assert.equal(currentStreak(s, "2026-10-03"), 2);
   assert.equal(currentStreak(s, "2026-10-04"), 0);
   r = applyXp(s, 50, "2026-10-05");
-  assert.equal(s.streak, 1);
+  assert.equal(currentStreak(s, "2026-10-05"), 1);
   assert.equal(s.bestStreak, 2);
   assert.equal(r.leveledUp, true);
   assert.equal(s.today.xp, 50);
 });
 
 test("reviewVerse: lên hộp 1 lần/ngày, xuống hộp khi sai, hạn ôn", () => {
-  let e = reviewVerse(undefined, true, "2026-10-01");
+  let e = reviewVerse(undefined, true, "2026-10-01", 1000);
   assert.equal(e.box, 1);
+  assert.equal(e.at, 1000);
   assert.equal(e.due, "2026-10-02");
   e = reviewVerse(e, true, "2026-10-01");
   assert.equal(e.box, 1, "cùng ngày không lên thêm");

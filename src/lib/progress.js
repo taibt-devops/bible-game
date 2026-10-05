@@ -28,6 +28,45 @@ export function dayDiff(from, to) {
   return Math.round((toUTC(to) - toUTC(from)) / 864e5);
 }
 
+// Tuần ISO (thứ Hai là ngày đầu tuần), ví dụ "2026-W41".
+export function isoWeek(day) {
+  const d = new Date(toUTC(day));
+  const dow = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - dow + 3);
+  const year = d.getUTCFullYear();
+  const firstThursday = new Date(Date.UTC(year, 0, 4));
+  const week = 1 + Math.round(((d - firstThursday) / 864e5 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+  return `${year}-W${pad(week)}`;
+}
+
+/* ---------- ngày học & chuỗi ---------- */
+
+export const MAX_DAYS = 400;
+
+export function addDay(days, day) {
+  if (days.includes(day)) return days;
+  return [...days, day].sort().slice(-MAX_DAYS);
+}
+
+// Chuỗi tính đến hôm nay (hoặc hôm qua nếu hôm nay chưa học).
+export function streakFrom(days, today) {
+  const set = new Set(days);
+  let d = set.has(today) ? today : addDays(today, -1);
+  let n = 0;
+  while (set.has(d)) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+export function bestStreakFrom(days) {
+  let best = 0, run = 0, prev = "";
+  for (const d of [...days].sort()) {
+    run = prev && dayDiff(prev, d) === 1 ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = d;
+  }
+  return best;
+}
+
 /* ---------- XP, cấp, chuỗi ---------- */
 
 export function levelInfo(xp) {
@@ -41,8 +80,7 @@ export function levelInfo(xp) {
 }
 
 export function currentStreak(state, today) {
-  if (!state.lastActive) return 0;
-  return dayDiff(state.lastActive, today) <= 1 ? state.streak : 0;
+  return streakFrom(state.days, today);
 }
 
 export function todayXp(state, today) {
@@ -55,10 +93,9 @@ export function applyXp(state, amount, today) {
   const dayBefore = todayXp(state, today);
   state.xp += amount;
   state.today = { date: today, xp: dayBefore + amount };
-  if (amount > 0 && state.lastActive !== today) {
-    state.streak = state.lastActive && dayDiff(state.lastActive, today) === 1 ? state.streak + 1 : 1;
-    state.lastActive = today;
-    state.bestStreak = Math.max(state.bestStreak, state.streak);
+  if (amount > 0) {
+    state.days = addDay(state.days, today);
+    state.bestStreak = Math.max(state.bestStreak, streakFrom(state.days, today));
   }
   const goal = state.settings.dailyGoal;
   return {
@@ -70,12 +107,14 @@ export function applyXp(state, amount, today) {
 /* ---------- Leitner ---------- */
 
 export function newEntry() {
-  return { box: 0, due: "", seen: 0, correct: 0, lastUp: "" };
+  return { box: 0, due: "", seen: 0, correct: 0, lastUp: "", at: 0 };
 }
 
-export function reviewVerse(entry, success, today) {
+// at: thời điểm (ms) để gộp dữ liệu giữa nhiều máy — bản mới nhất thắng.
+export function reviewVerse(entry, success, today, at = Date.now()) {
   const e = { ...newEntry(), ...entry };
   e.seen++;
+  e.at = Math.max(at, (entry?.at ?? 0) + 1);
   if (success) {
     e.correct++;
     if (e.lastUp !== today) {

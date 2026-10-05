@@ -9,6 +9,7 @@ Cách dùng:
 
 Muốn thêm câu gốc: thêm một dòng vào VERSES rồi chạy lại script. Không sửa tay src/data/verses.js.
 """
+import gzip
 import json
 import os
 import re
@@ -18,6 +19,7 @@ import urllib.request
 SOURCE_URL = "https://raw.githubusercontent.com/scrollmapper/bible_databases/master/formats/json/Viet.json"
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "src", "data", "verses.js")
+BIBLE_OUT = os.path.join(HERE, "..", "server", "data", "vi1934.json.gz")
 
 TOPICS = [
     ("love", "Tình yêu"),
@@ -31,15 +33,18 @@ TOPICS = [
     ("life", "Sống đẹp"),
 ]
 
-BOOK_VI = {
-    "Deuteronomy": "Phục Truyền Luật Lệ Ký", "Joshua": "Giô-suê", "Psalms": "Thi Thiên",
-    "Proverbs": "Châm Ngôn", "Ecclesiastes": "Truyền Đạo", "Isaiah": "Ê-sai", "Jeremiah": "Giê-rê-mi",
-    "Lamentations": "Ca Thương", "Micah": "Mi-chê", "Matthew": "Ma-thi-ơ", "John": "Giăng",
-    "Acts": "Công Vụ", "Romans": "Rô-ma", "I Corinthians": "1 Cô-rinh-tô", "II Corinthians": "2 Cô-rinh-tô",
-    "Galatians": "Ga-la-ti", "Ephesians": "Ê-phê-sô", "Philippians": "Phi-líp", "Colossians": "Cô-lô-se",
-    "I Timothy": "1 Ti-mô-thê", "II Timothy": "2 Ti-mô-thê", "Hebrews": "Hê-bơ-rơ", "I Peter": "1 Phi-e-rơ",
-    "I John": "1 Giăng", "Revelation of John": "Khải Huyền",
-}
+# Tên 66 sách theo bản Truyền Thống, theo thứ tự trong nguồn.
+BOOK_NAMES_VI = [
+    "Sáng Thế Ký", "Xuất Ê-díp-tô Ký", "Lê-vi Ký", "Dân Số Ký", "Phục Truyền Luật Lệ Ký", "Giô-suê",
+    "Các Quan Xét", "Ru-tơ", "1 Sa-mu-ên", "2 Sa-mu-ên", "1 Các Vua", "2 Các Vua", "1 Sử Ký", "2 Sử Ký",
+    "E-xơ-ra", "Nê-hê-mi", "Ê-xơ-tê", "Gióp", "Thi Thiên", "Châm Ngôn", "Truyền Đạo", "Nhã Ca", "Ê-sai",
+    "Giê-rê-mi", "Ca Thương", "Ê-xê-chi-ên", "Đa-ni-ên", "Ô-sê", "Giô-ên", "A-mốt", "Áp-đia", "Giô-na",
+    "Mi-chê", "Na-hum", "Ha-ba-cúc", "Sô-phô-ni", "A-ghê", "Xa-cha-ri", "Ma-la-chi",
+    "Ma-thi-ơ", "Mác", "Lu-ca", "Giăng", "Công Vụ", "Rô-ma", "1 Cô-rinh-tô", "2 Cô-rinh-tô", "Ga-la-ti",
+    "Ê-phê-sô", "Phi-líp", "Cô-lô-se", "1 Tê-sa-lô-ni-ca", "2 Tê-sa-lô-ni-ca", "1 Ti-mô-thê", "2 Ti-mô-thê",
+    "Tít", "Phi-lê-môn", "Hê-bơ-rơ", "Gia-cơ", "1 Phi-e-rơ", "2 Phi-e-rơ", "1 Giăng", "2 Giăng", "3 Giăng",
+    "Giu-đe", "Khải Huyền",
+]
 
 # (chủ đề, sách trong nguồn, chương, câu đầu, câu cuối)
 VERSES = [
@@ -100,6 +105,8 @@ def slug(*parts):
 
 def main():
     data = load_source(sys.argv[1] if len(sys.argv) > 1 else None)
+    assert len(data["books"]) == 66
+    names_vi = {b["name"]: BOOK_NAMES_VI[i] for i, b in enumerate(data["books"])}
     books = {b["name"]: b for b in data["books"]}
     fixes = {f[0]: f[1:] for f in FIXES}
     out, seen = [], set()
@@ -115,7 +122,7 @@ def main():
         text = tidy_excerpt(text)
         assert vid not in seen, vid
         seen.add(vid)
-        out.append({"id": vid, "ref": f"{BOOK_VI[book]} {ch}:{span}", "topic": topic,
+        out.append({"id": vid, "ref": f"{names_vi[book]} {ch}:{span}", "topic": topic,
                     "text": text, "words": len(text.split())})
 
     lines = [
@@ -131,6 +138,33 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
     print(f"Đã ghi {len(out)} câu vào {os.path.relpath(OUT)}")
+    write_bible(data, fixes)
+
+
+def write_bible(data, fixes):
+    """Toàn bộ Kinh Thánh 1934, gọn, cho máy chủ (nhóm trưởng chọn câu gốc tuần)."""
+    books = []
+    for i, b in enumerate(data["books"]):
+        chapters = []
+        for c in b["chapters"]:
+            verses = [clean(v["text"]) for v in sorted(c["verses"], key=lambda v: v["verse"])]
+            chapters.append(verses)
+        books.append({"n": i + 1, "slug": slug(b["name"]), "name": BOOK_NAMES_VI[i], "chapters": chapters})
+    # Áp dụng các sửa lỗi nguồn cho cả bản đầy đủ (FIXES chỉ áp vào câu đơn).
+    by_slug = {b["slug"]: b for b in books}
+    for vid, (wrong, right) in fixes.items():
+        m = re.match(r"^(.*)-(\d+)-(\d+)$", vid)
+        if not m:
+            continue
+        b = by_slug[m.group(1)]
+        ch, v = int(m.group(2)), int(m.group(3))
+        b["chapters"][ch - 1][v - 1] = b["chapters"][ch - 1][v - 1].replace(wrong, right)
+    os.makedirs(os.path.dirname(BIBLE_OUT), exist_ok=True)
+    payload = json.dumps({"translation": "Kinh Thánh Tiếng Việt 1934 (Truyền Thống)", "books": books}, ensure_ascii=False, separators=(",", ":"))
+    with gzip.open(BIBLE_OUT, "wt", encoding="utf-8", compresslevel=9) as f:
+        f.write(payload)
+    total = sum(len(c) for b in books for c in b["chapters"])
+    print(f"Đã ghi {total} câu (66 sách) vào {os.path.relpath(BIBLE_OUT)}")
 
 
 if __name__ == "__main__":
