@@ -1,5 +1,6 @@
 // Chế độ Điền Từ: chọn từ còn thiếu trong câu gốc.
 import { VERSES } from "../data/verses.js";
+import { allVerses } from "../data/catalog.js";
 import { CONFIG } from "../config.js";
 import { clampLevel } from "../modes.js";
 import { pickRound } from "../lib/progress.js";
@@ -18,7 +19,7 @@ let pool;
 export function fillScreen(root, params) {
   const s = store.get();
   const level = clampLevel(params.level ?? s.last.level);
-  const verses = pickRound(VERSES, s.verses, { count: CONFIG.roundSize.fill, topic: params.topic ?? "all", level, today: today(), onlyId: params.verse });
+  const verses = pickRound(allVerses(), s.verses, { count: CONFIG.roundSize.fill, topic: params.topic ?? "all", level, today: today(), onlyId: params.verse });
   if (!verses.length) return go("");
   pool ??= buildWordPool(VERSES);
 
@@ -109,7 +110,7 @@ export function fillScreen(root, params) {
       onNext: () => {
         idx++;
         if (!last) return startVerse();
-        const summary = finishRound(results);
+        const summary = finishRound(results, "fill");
         renderResult(root, { mode: "fill", params, summary, results, extraStat: { value: `×${bestCombo}`, label: "Combo cao nhất" } });
       },
     });

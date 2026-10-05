@@ -1,5 +1,5 @@
 // Chế độ Xếp Câu: sắp các mảnh về đúng thứ tự.
-import { VERSES } from "../data/verses.js";
+import { allVerses } from "../data/catalog.js";
 import { CONFIG } from "../config.js";
 import { clampLevel, LEVEL_NAMES } from "../modes.js";
 import { pickRound } from "../lib/progress.js";
@@ -17,7 +17,7 @@ import { renderResult } from "./result.js";
 export function orderScreen(root, params) {
   const s = store.get();
   const level = clampLevel(params.level ?? s.last.level);
-  const verses = pickRound(VERSES, s.verses, { count: CONFIG.roundSize.order, topic: params.topic ?? "all", level, today: today(), onlyId: params.verse });
+  const verses = pickRound(allVerses(), s.verses, { count: CONFIG.roundSize.order, topic: params.topic ?? "all", level, today: today(), onlyId: params.verse });
   if (!verses.length) return go("");
 
   let idx = 0, total = 0, touched = false, busy = false;
@@ -91,7 +91,7 @@ export function orderScreen(root, params) {
       onNext: () => {
         idx++;
         if (!last) return startVerse();
-        const summary = finishRound(results);
+        const summary = finishRound(results, "order");
         const firstTry = results.filter((r) => r.success).length;
         renderResult(root, { mode: "order", params, summary, results, extraStat: { value: `${firstTry}`, label: "Đúng ngay lần đầu" } });
       },

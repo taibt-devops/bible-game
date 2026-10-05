@@ -1,5 +1,5 @@
 // Góc Ôn Tập: thẻ ghi nhớ theo lịch Leitner + thư viện câu gốc.
-import { VERSES, TOPICS } from "../data/verses.js";
+import { allVerses, allTopics, findVerse } from "../data/catalog.js";
 import { CONFIG } from "../config.js";
 import { MODES } from "../modes.js";
 import { reviewQueue, verseStatus, isDue, dayDiff, LEARNED_BOX } from "../lib/progress.js";
@@ -46,7 +46,7 @@ export function reviewScreen(root, params) {
 
   function paintTabs() {
     const s = store.get();
-    const due = VERSES.filter((v) => isDue(s.verses[v.id], today())).length;
+    const due = allVerses().filter((v) => isDue(s.verses[v.id], today())).length;
     tabs.innerHTML = `
       <button class="tab" role="tab" type="button" data-tab="cards" aria-selected="${tab === "cards"}">Thẻ ôn hôm nay${due ? `<span class="count">${due}</span>` : ""}</button>
       <button class="tab" role="tab" type="button" data-tab="library" aria-selected="${tab === "library"}">Thư viện</button>`;
@@ -74,7 +74,7 @@ export function reviewScreen(root, params) {
 
 function flashcards(panel, onChange) {
   const s = store.get();
-  const q = reviewQueue(VERSES, s.verses, today(), CONFIG.reviewSession);
+  const q = reviewQueue(allVerses(), s.verses, today(), CONFIG.reviewSession);
   if (q.kind === "empty") return emptyState(panel, onChange);
   return runDeck(panel, q.list, q.kind === "due" ? `Đến hạn ôn: ${q.list.length} thẻ` : "Chưa có thẻ đến hạn. Làm quen với vài câu mới nhé!", onChange);
 }
@@ -90,7 +90,7 @@ function emptyState(panel, onChange) {
     </div></div>`;
   panel.querySelector("[data-extra]").addEventListener("click", () => {
     const st = store.get();
-    const learned = VERSES.filter((v) => (st.verses[v.id]?.box ?? 0) > 0);
+    const learned = allVerses().filter((v) => (st.verses[v.id]?.box ?? 0) > 0);
     runDeck(panel, shuffle(learned).slice(0, 5), "Ôn thêm ngoài lịch", onChange);
   });
   panel.querySelector("[data-lib]").addEventListener("click", () => panel.closest(".play").querySelector('[data-tab="library"]').click());
@@ -187,7 +187,7 @@ function library(panel) {
       <label class="sr" for="lib-search">Tìm câu gốc</label>
       <input id="lib-search" class="search" type="search" placeholder="Tìm theo địa chỉ hoặc nội dung…" autocomplete="off">
     </div>
-    <div class="chips">${[{ id: "all", name: "Tất cả" }, ...TOPICS].map((t) => `<button class="tchip" type="button" data-topic="${t.id}" aria-pressed="${t.id === topic}">${esc(t.name)}</button>`).join("")}</div>
+    <div class="chips">${[{ id: "all", name: "Tất cả" }, ...allTopics()].map((t) => `<button class="tchip" type="button" data-topic="${t.id}" aria-pressed="${t.id === topic}">${esc(t.name)}</button>`).join("")}</div>
     <p class="lib-sum" data-sum></p>
     <div class="lib-list" data-list></div>
   </div>`;
@@ -198,7 +198,7 @@ function library(panel) {
     const s = store.get();
     const day = today();
     const q = stripDiacritics(query.trim().toLowerCase());
-    const shown = VERSES.filter((v) => (topic === "all" || v.topic === topic) && (!q || stripDiacritics(`${v.ref} ${v.text}`.toLowerCase()).includes(q)));
+    const shown = allVerses().filter((v) => (topic === "all" || v.topic === topic) && (!q || stripDiacritics(`${v.ref} ${v.text}`.toLowerCase()).includes(q)));
     const learned = shown.filter((v) => (s.verses[v.id]?.box ?? 0) >= LEARNED_BOX).length;
     const learning = shown.filter((v) => verseStatus(s.verses[v.id]) === "learning").length;
     sum.textContent = `${shown.length} câu · ${learned} đã thuộc · ${learning} đang học`;
@@ -222,7 +222,7 @@ function library(panel) {
       return paint();
     }
     const v = e.target.closest("[data-verse]");
-    if (v) openVerse(VERSES.find((x) => x.id === v.dataset.verse));
+    if (v) openVerse(findVerse(v.dataset.verse));
   });
   paint();
   const off = store.subscribe(paint);

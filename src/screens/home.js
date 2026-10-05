@@ -1,8 +1,8 @@
 // Trang chủ: hồ sơ, bảng tên, 4 thẻ chế độ, câu gốc hôm nay, phòng học.
-import { VERSES } from "../data/verses.js";
+import { allVerses } from "../data/catalog.js";
 import { CONFIG } from "../config.js";
 import { MODES } from "../modes.js";
-import { store, today, todaysVerse, topicName } from "../game.js";
+import { store, today, todaysVerse, topicName, weeklyVerse } from "../game.js";
 import { go } from "../router.js";
 import { levelInfo, currentStreak, isDue } from "../lib/progress.js";
 import { play, speak, canSpeak } from "../lib/sound.js";
@@ -12,6 +12,10 @@ import { ART, LAMB, DOVE, SIGN_BOOK, SIGN_WHEAT } from "../ui/art.js";
 import { openModal, toast } from "../ui/feedback.js";
 import { openPicker } from "./picker.js";
 import { openProfile, comingSoon } from "./profile.js";
+import { openAccount } from "./account.js";
+import { openGroup } from "./group.js";
+import { openLeaderboard } from "./leaderboard.js";
+import { account, onAccount } from "../net/account.js";
 
 const CARD_ORDER = ["fill", "order", "recall", "review"];
 
@@ -26,12 +30,19 @@ function profileHTML(s) {
         <span class="streak ${streak ? "" : "off"}">${ICON.flame}${streak} ngày</span>
       </span>
       <span class="xp"><span class="bar"><i style="width:${(into / need) * 100}%"></i></span><b>${fmt(into)} / ${fmt(need)} XP</b></span>
+      <span class="pgroup">${groupLine()}</span>
     </span>`;
+}
+
+function groupLine() {
+  if (account.me?.group) return `${ICON.group}${esc(account.me.group.name)}`;
+  if (account.me) return "Chưa vào nhóm · bấm để chọn nhóm";
+  return account.online ? "Chưa đăng nhập · bấm để vào nhóm" : "Đang chơi trên máy này";
 }
 
 function dueCount(s) {
   const day = today();
-  return VERSES.filter((v) => isDue(s.verses[v.id], day)).length;
+  return allVerses().filter((v) => isDue(s.verses[v.id], day)).length;
 }
 
 export function homeScreen(root, _params, deco) {
@@ -48,7 +59,7 @@ export function homeScreen(root, _params, deco) {
       </div>
     </div>
     <nav class="tools" aria-label="Công cụ">
-      <button class="tool t1" type="button" data-act="friends" data-tip="Bạn bè" aria-label="Bạn bè">${ICON.people}</button>
+      <button class="tool t1" type="button" data-act="friends" data-tip="Nhóm của tôi" aria-label="Nhóm của tôi">${ICON.people}</button>
       <button class="tool t2" type="button" data-act="ranking" data-tip="Bảng xếp hạng" aria-label="Bảng xếp hạng">${ICON.trophy}</button>
       <button class="tool t3" type="button" data-act="sound" data-tip="Âm thanh" aria-label="Âm thanh" aria-pressed="${s.settings.sound}">${s.settings.sound ? ICON.sound : ICON.soundOff}</button>
       <button class="tool t4" type="button" data-act="settings" data-tip="Cài đặt" aria-label="Cài đặt">${ICON.gear}</button>
@@ -72,7 +83,7 @@ export function homeScreen(root, _params, deco) {
   <footer class="foot">
     <div class="row">
       ${CONFIG.groupUrl ? `<a class="chip" href="${esc(CONFIG.groupUrl)}" target="_blank" rel="noopener">${ICON.group}Tham gia nhóm thanh niên<span class="chev">${ICON.chev}</span></a>` : ""}
-      <button class="chip" type="button" data-act="votd">${ICON.scroll}Câu gốc hôm nay<span class="chev">${ICON.chev}</span></button>
+      <button class="chip" type="button" data-act="votd">${ICON.scroll}${weeklyVerse() ? "Câu gốc tuần" : "Câu gốc hôm nay"}<span class="chev">${ICON.chev}</span></button>
       <button class="room" type="button" data-act="room">${ICON.book}<span><b>Phòng học</b><small><i class="dot"></i>Sắp ra mắt</small></span></button>
     </div>
     <p class="motto"><em>“Tôi đã giấu lời Chúa trong lòng tôi”</em> · Thi Thiên 119:11 · © ${new Date().getFullYear()} ${esc(CONFIG.appName)}</p>
@@ -88,7 +99,9 @@ export function homeScreen(root, _params, deco) {
     switch (el.dataset.act) {
       case "profile": return openProfile();
       case "settings": return openProfile({ focusSettings: true });
-      case "friends": case "ranking": case "room": return comingSoon(el.dataset.act);
+      case "friends": return account.me?.group ? openGroup() : openAccount();
+      case "ranking": return openLeaderboard();
+      case "room": return comingSoon("room");
       case "votd": return openVotd();
       case "sound": {
         store.update((st) => { st.settings.sound = !st.settings.sound; });
@@ -101,25 +114,28 @@ export function homeScreen(root, _params, deco) {
     }
   });
 
-  const offStore = store.subscribe((st) => {
+  const repaint = () => {
     const p = root.querySelector(".profile");
-    if (p) p.innerHTML = profileHTML(st);
-  });
+    if (p) p.innerHTML = profileHTML(store.get());
+  };
+  const offStore = store.subscribe(repaint);
+  const offAccount = onAccount(repaint);
 
-  return () => { offClick(); offStore(); };
+  return () => { offClick(); offStore(); offAccount(); };
 }
 
 export function openVotd() {
   const v = todaysVerse();
   const s = store.get();
+  const weekly = weeklyVerse();
   const done = s.stats.votdDone === today();
   const m = openModal({
     className: "scroll-sheet",
-    label: "Câu gốc hôm nay",
-    body: `<p class="eyebrow">Câu gốc hôm nay</p>
+    label: weekly ? "Câu gốc tuần" : "Câu gốc hôm nay",
+    body: `<p class="eyebrow">${weekly ? `Câu gốc tuần của nhóm${s.weekly?.setBy ? ` · ${esc(s.weekly.setBy)} chọn` : ""}` : "Câu gốc hôm nay"}</p>
       <h2 class="ref-title">${esc(v.ref)}</h2>
       <blockquote class="hand">${esc(v.text)}</blockquote>
-      <p class="meta">Bản Truyền Thống 1925 · Chủ đề: ${esc(topicName(v.topic))} · ${done ? "Bạn đã hoàn thành câu này hôm nay" : `Hoàn thành hôm nay để nhận thêm ${CONFIG.xp.votdBonus} XP`}</p>
+      <p class="meta">Bản Truyền Thống 1925${v.topic === "group" ? "" : ` · Chủ đề: ${esc(topicName(v.topic))}`} · ${done ? "Bạn đã hoàn thành câu này hôm nay" : `Hoàn thành hôm nay để nhận thêm ${CONFIG.xp.votdBonus} XP`}</p>
       <div class="actions">
         <button class="btn red sm" type="button" data-go="order" data-autofocus>Xếp câu này</button>
         <button class="btn teal sm" type="button" data-go="recall">Thuộc lòng</button>

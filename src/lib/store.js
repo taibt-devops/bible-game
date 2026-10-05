@@ -18,8 +18,9 @@ export function defaultState() {
     badges: {},
     stats: { rounds: 0, perfectRounds: 0, votdDone: "", votdCount: 0 },
     extraVerses: {},
+    weekly: null,
     last: { topic: "all", level: 2 },
-    sync: { deviceId: "", pending: [], lastSync: "" },
+    sync: { deviceId: "", pending: [], lastSync: "", dirty: false },
   };
 }
 
@@ -28,7 +29,7 @@ const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
 function merge(base, extra) {
   const out = { ...base };
   for (const k of Object.keys(extra || {})) {
-    out[k] = isObj(base[k]) && isObj(extra[k]) && !["verses", "badges", "extraVerses"].includes(k) ? merge(base[k], extra[k]) : extra[k];
+    out[k] = isObj(base[k]) && isObj(extra[k]) && !["verses", "badges", "extraVerses", "weekly"].includes(k) ? merge(base[k], extra[k]) : extra[k];
   }
   return out;
 }

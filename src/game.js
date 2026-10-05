@@ -1,7 +1,9 @@
-// Lớp nối giữa luật chơi (lib/) và giao diện: lưu trữ, cộng XP, kết thúc lượt, huy hiệu.
+// Lớp nối giữa luật chơi (lib/) và giao diện: lưu trữ, cộng XP, kết thúc lượt, huy hiệu, hàng đợi đồng bộ.
 import { createStore } from "./lib/store.js";
 import { VERSES, TOPICS } from "./data/verses.js";
-import { dayStr, applyXp, reviewVerse, earnedBadges, verseOfDay, levelInfo, BADGES } from "./lib/progress.js";
+import { allVerses, findVerse, setExtraVerses, GROUP_TOPIC } from "./data/catalog.js";
+import { dayStr, isoWeek, applyXp, reviewVerse, earnedBadges, verseOfDay, levelInfo, BADGES } from "./lib/progress.js";
+import { makeEvent } from "./lib/sync.js";
 import { CONFIG } from "./config.js";
 import { play } from "./lib/sound.js";
 import { toast } from "./ui/feedback.js";
@@ -17,12 +19,26 @@ function safeStorage() {
   }
 }
 
+export const newId = () =>
+  (globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`).replace(/[^\w-]/g, "");
+
 export const store = createStore(safeStorage());
+if (!store.get().sync.deviceId) store.update((s) => { s.sync.deviceId = newId(); });
+setExtraVerses(store.get().extraVerses);
+store.subscribe((s) => setExtraVerses(s.extraVerses));
+
 export const today = () => dayStr();
-export const verseById = (id) => VERSES.find((v) => v.id === id);
-export const topicName = (id) => (id === "all" ? "Tất cả" : TOPICS.find((t) => t.id === id)?.name ?? id);
-export const todaysVerse = () => verseOfDay(VERSES, today());
+export const verseById = (id) => findVerse(id);
+export const topicName = (id) =>
+  id === "all" ? "Tất cả" : id === GROUP_TOPIC.id ? GROUP_TOPIC.name : TOPICS.find((t) => t.id === id)?.name ?? id;
 export const badgeById = (id) => BADGES.find((b) => b.id === id);
+
+// Câu gốc tuần của nhóm (nếu có, trong tuần này) thay cho câu gốc hôm nay.
+export function weeklyVerse() {
+  const w = store.get().weekly;
+  return w && w.week === isoWeek(today()) ? findVerse(w.id) ?? null : null;
+}
+export const todaysVerse = () => weeklyVerse() ?? verseOfDay(VERSES, today());
 
 function collectBadges(s, day) {
   const ids = earnedBadges(s, VERSES, TOPICS).filter((id) => !s.badges[id]);
@@ -50,13 +66,15 @@ export function recordFlashcard(verseId, known) {
   store.update((s) => {
     s.verses[verseId] = reviewVerse(s.verses[verseId], known, day);
     ev = known ? applyXp(s, CONFIG.xp.flashKnown, day) : { leveledUp: false, goalReached: false };
+    if (known) s.sync.pending.push(makeEvent({ id: newId(), day, at: Date.now(), xp: CONFIG.xp.flashKnown, kind: "flash", mode: "review" }));
     ev.badges = collectBadges(s, day);
+    s.sync.dirty = true;
   });
   announce(ev);
 }
 
 // Kết thúc một lượt. results: [{ id, success, xp }]
-export function finishRound(results) {
+export function finishRound(results, mode) {
   const day = today();
   const votd = todaysVerse();
   const roundXp = results.reduce((a, r) => a + r.xp, 0);
@@ -68,9 +86,12 @@ export function finishRound(results) {
     if (votdHit) { s.stats.votdDone = day; s.stats.votdCount++; }
     const bonus = votdHit ? CONFIG.xp.votdBonus : 0;
     const successes = results.filter((r) => r.success).length;
+    const perfect = results.length > 0 && successes === results.length;
     s.stats.rounds++;
-    if (results.length && successes === results.length) s.stats.perfectRounds++;
+    if (perfect) s.stats.perfectRounds++;
     const ev = applyXp(s, roundXp + bonus, day);
+    s.sync.pending.push(makeEvent({ id: newId(), day, at: Date.now(), xp: roundXp + bonus, kind: "round", mode, perfect, votd: votdHit }));
+    s.sync.dirty = true;
     summary = {
       roundXp, bonus, total: roundXp + bonus, successes, count: results.length, votdHit,
       levelBefore, levelAfter: levelInfo(s.xp), ...ev, badges: collectBadges(s, day),
@@ -78,3 +99,5 @@ export function finishRound(results) {
   });
   return summary;
 }
+
+export { allVerses };

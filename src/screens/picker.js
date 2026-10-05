@@ -1,5 +1,5 @@
 // Hộp thoại chọn chủ đề và độ khó trước khi chơi.
-import { VERSES, TOPICS } from "../data/verses.js";
+import { allVerses, allTopics } from "../data/catalog.js";
 import { LEARNED_BOX } from "../lib/progress.js";
 import { MODES, LEVEL_NAMES, clampLevel } from "../modes.js";
 import { store } from "../game.js";
@@ -11,11 +11,11 @@ import { openModal } from "../ui/feedback.js";
 export function openPicker(mode) {
   const s = store.get();
   const m = MODES[mode];
-  let topic = s.last.topic;
+  let topic = allTopics().some((t) => t.id === s.last.topic) ? s.last.topic : "all";
   let level = clampLevel(s.last.level);
 
-  const topics = [{ id: "all", name: "Tất cả" }, ...TOPICS].map((t) => {
-    const list = t.id === "all" ? VERSES : VERSES.filter((v) => v.topic === t.id);
+  const topics = [{ id: "all", name: "Tất cả" }, ...allTopics()].map((t) => {
+    const list = t.id === "all" ? allVerses() : allVerses().filter((v) => v.topic === t.id);
     const learned = list.filter((v) => (s.verses[v.id]?.box ?? 0) >= LEARNED_BOX).length;
     return { ...t, total: list.length, learned };
   });

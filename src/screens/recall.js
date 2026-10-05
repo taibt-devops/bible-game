@@ -1,5 +1,5 @@
 // Chế độ Thuộc Lòng: gõ lại cả câu từ trí nhớ.
-import { VERSES } from "../data/verses.js";
+import { allVerses } from "../data/catalog.js";
 import { CONFIG } from "../config.js";
 import { clampLevel } from "../modes.js";
 import { pickRound } from "../lib/progress.js";
@@ -22,7 +22,7 @@ const PROMPTS = [
 export function recallScreen(root, params) {
   const s = store.get();
   const level = clampLevel(params.level ?? s.last.level);
-  const verses = pickRound(VERSES, s.verses, { count: CONFIG.roundSize.recall, topic: params.topic ?? "all", level, today: today(), onlyId: params.verse });
+  const verses = pickRound(allVerses(), s.verses, { count: CONFIG.roundSize.recall, topic: params.topic ?? "all", level, today: today(), onlyId: params.verse });
   if (!verses.length) return go("");
 
   let idx = 0, total = 0, touched = false, peekTimer;
@@ -108,7 +108,7 @@ export function recallScreen(root, params) {
         onNext: () => {
           idx++;
           if (!last) return startVerse();
-          const summary = finishRound(results);
+          const summary = finishRound(results, "recall");
           renderResult(root, { mode: "recall", params, summary, results, extraStat: { value: `${results.filter((r) => r.success).length}`, label: "Câu thuộc lòng" } });
         },
       });

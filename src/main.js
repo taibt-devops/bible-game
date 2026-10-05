@@ -9,6 +9,7 @@ import { fillScreen } from "./screens/fill.js";
 import { orderScreen } from "./screens/order.js";
 import { recallScreen } from "./screens/recall.js";
 import { reviewScreen } from "./screens/review.js";
+import { initAccount, onAccount } from "./net/account.js";
 
 setSoundEnabled(() => store.get().settings.sound);
 
@@ -19,6 +20,7 @@ function applySettings(s) {
 
 store.subscribe(applySettings);
 applySettings(store.get());
+onAccount(() => renderTicker(store.get()));
 initScene();
 
 startRouter(
@@ -32,6 +34,8 @@ startRouter(
   document.getElementById("app"),
   document.getElementById("deco"),
 );
+
+initAccount();
 
 // Chơi offline: chỉ đăng ký service worker khi chạy thật (không phải máy dev).
 const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);

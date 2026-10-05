@@ -88,3 +88,21 @@ export function burst(anchor, count = 18) {
     setTimeout(() => s.remove(), 950);
   }
 }
+
+// Gắn trạng thái chờ + báo lỗi cho một nút.
+export async function busy(button, errorEl, task) {
+  const label = button.innerHTML;
+  button.disabled = true;
+  button.textContent = "Đang xử lý…";
+  if (errorEl) errorEl.hidden = true;
+  try {
+    return await task();
+  } catch (e) {
+    if (errorEl) { errorEl.textContent = e.message; errorEl.hidden = false; }
+    else toast(e.message);
+    return undefined;
+  } finally {
+    button.disabled = false;
+    button.innerHTML = label;
+  }
+}

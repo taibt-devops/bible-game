@@ -1,15 +1,16 @@
 // Service worker: cache khung app để chơi khi mất mạng.
 // Tăng VERSION mỗi khi phát hành bản mới để người chơi nhận code mới.
-const VERSION = "manna-v1";
+const VERSION = "manna-v2";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest", "assets/icon.svg",
   "styles/base.css", "styles/game.css",
   "src/main.js", "src/config.js", "src/modes.js", "src/game.js", "src/router.js",
-  "src/data/verses.js",
-  "src/lib/text.js", "src/lib/progress.js", "src/lib/random.js", "src/lib/store.js", "src/lib/sound.js",
+  "src/data/verses.js", "src/data/catalog.js", "src/net/api.js", "src/net/account.js", "src/net/google.js",
+  "src/lib/text.js", "src/lib/progress.js", "src/lib/random.js", "src/lib/store.js", "src/lib/sound.js", "src/lib/sync.js",
   "src/ui/art.js", "src/ui/dom.js", "src/ui/feedback.js", "src/ui/icons.js", "src/ui/scene.js", "src/ui/ticker.js",
   "src/screens/home.js", "src/screens/picker.js", "src/screens/round.js", "src/screens/result.js",
   "src/screens/fill.js", "src/screens/order.js", "src/screens/recall.js", "src/screens/review.js", "src/screens/profile.js",
+  "src/screens/account.js", "src/screens/group.js", "src/screens/leaderboard.js",
 ];
 
 self.addEventListener("install", (e) => {
@@ -36,7 +37,7 @@ self.addEventListener("fetch", (e) => {
     }));
     return;
   }
-  if (url.origin !== location.origin) return;
+  if (url.origin !== location.origin || url.pathname.startsWith("/api/")) return;
   // Khung app: ưu tiên mạng để luôn có bản mới, mất mạng thì dùng cache.
   e.respondWith(
     fetch(e.request)

@@ -209,3 +209,62 @@
   .face .big-ref{font-size:32px}
   .tab{padding:8px 12px 6px;font-size:15px}
 }
+
+/* ---------- tài khoản, nhóm, bảng xếp hạng ---------- */
+.pgroup{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:12.5px;font-weight:700;color:var(--ink-soft);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgroup svg{width:15px;height:15px;flex:none}
+.form{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.form label{font-weight:800;font-size:14px;margin-top:6px}
+.field{width:100%;min-width:0;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:16px;color:var(--ink)}
+.field:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+select.field{padding:9px 10px;cursor:pointer}
+.code-field{text-transform:uppercase;letter-spacing:.18em;font-family:var(--f-head);font-weight:800}
+.form .btn{margin-top:10px}
+.form-hint{margin:2px 0 0;font-size:13.5px;font-weight:600;color:var(--ink-soft);line-height:1.45}
+.form-error{margin:4px 0 0;padding:8px 12px;border-radius:10px;background:var(--bad-bg);color:var(--red-dark);font-weight:800;font-size:14px}
+.center{text-align:center}
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.inline .field{flex:1;min-width:150px}
+.inline .btn{margin-top:0}
+.or{display:flex;align-items:center;gap:12px;margin:18px 0 12px;color:var(--ink-soft);font-weight:800;font-size:13px}
+.or::before,.or::after{content:"";flex:1;border-top:2px dashed var(--line)}
+.gbtn{display:flex;justify-content:center;min-height:44px}
+.gbtn.left{justify-content:flex-start;margin-top:6px}
+.notice{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:var(--good-bg);border:1px solid var(--green);font-weight:700}
+.acct-box{padding:12px 14px;border-radius:12px;background:var(--paper-warm);border:2px solid var(--line)}
+.acct-box p{margin:0 0 10px;font-weight:600;line-height:1.5}
+.code-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.code-row>span:first-child{font-weight:800;color:var(--ink-soft)}
+.code{font:800 26px var(--f-head);letter-spacing:.16em;color:var(--red);background:#fff;border:2px dashed var(--red);border-radius:10px;padding:2px 12px 0}
+.tabs.small{margin:0 0 14px;box-shadow:none}
+.tabs.small .tab{font-size:15px;padding:6px 12px 4px}
+.members{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.member{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:#fffdf6;border:1px solid var(--line)}
+.avatar.sm{width:40px;height:40px;border-width:2px}
+.who{flex:1;min-width:150px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.who b{font-size:16px}
+.who small{flex-basis:100%;font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+.tag.lead{background:var(--gold-soft);border-color:var(--gold);color:#8a5a0a}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap}
+.row-actions .btn{font-size:13px;padding:6px 10px 5px;box-shadow:0 3px 0 var(--line)}
+.danger-btn{color:var(--red-dark)}
+.inline-panel{flex-basis:100%;padding-top:6px}
+.weekly-card{padding:14px 16px;border-radius:12px;background:var(--parchment);border:2px solid var(--line)}
+.weekly-card .ref-title{margin:2px 0 8px;font-size:24px}
+.weekly-card .hand{font-size:calc(var(--verse-size) + 1px)}
+.pick-row{display:grid;grid-template-columns:2fr repeat(3,minmax(0,1fr));gap:8px}
+.pick-row label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:13px}
+.preview{margin:10px 0;padding:12px 14px;border-radius:12px;background:#fffdf6;border:2px dashed var(--gold);min-height:60px}
+.preview .hand{font-size:20px}
+.lb{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.lb li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#fffdf6;border:1px solid var(--line)}
+.lb li.me{background:var(--gold-soft);border-color:var(--gold)}
+.lb .rank{width:30px;text-align:center;font:800 18px var(--f-head);flex:none}
+.lb .rank svg{width:26px;height:26px;display:block;margin:auto}
+.lb .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .pts{font:800 17px var(--f-head);color:var(--green-dark);font-variant-numeric:tabular-nums}
+@media (max-width:620px){
+  .pick-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .pick-row label:first-child{grid-column:1/-1}
+  .pgroup{max-width:none}
+}
